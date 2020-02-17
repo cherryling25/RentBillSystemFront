@@ -68,7 +68,6 @@ export default {
           password: ""
         },
         loading: false,
-        pwdType: "password",
       };
     },
   methods: {
@@ -109,7 +108,10 @@ export default {
       });
     },
     handleLogin() {
-      var url = "useraccount/login";
+      this.$router.push({
+            path: "/home"
+          });
+      /* var url = "useraccount/login";
       let requestData = {
         userName: this.loginForm.username,
         password: this.loginForm.password
@@ -127,7 +129,7 @@ export default {
         }
       }).catch((error) => {
         console.log(error);
-      })
+      }) */
     }
   }
 };
@@ -146,4 +148,12 @@ export default {
   padding-bottom: 20px;
 }
 
+/* 背景图 */
+.login{
+  background: url("../../public/1.jpg");
+  background-size: 100% 100%;
+  height: 100%;
+  position: fixed;
+  width: 100%
+} 
 </style>
