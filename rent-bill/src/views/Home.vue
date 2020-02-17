@@ -6,7 +6,7 @@
 </template>
 
 <script>
-// @ is an alias to /src
+// @ is an alias to /src    //直接from 该文件夹位置
 import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
