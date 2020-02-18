@@ -150,7 +150,7 @@ export default {
 
 /* 背景图 */
 .login{
-  background: url("../../public/1.jpg");
+  background: url("../../public/2.jpg");
   background-size: 100% 100%;
   height: 100%;
   position: fixed;
