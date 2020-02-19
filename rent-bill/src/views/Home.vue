@@ -1,42 +1,42 @@
 <template>
   <div class="home">
     <el-container style="height: 100%;width: 100%; position: fixed; border: 1px solid #eee">
-    <el-menu class="el-menu-vertical-demo" :collapse="isCollapse">
-      <el-radio-group v-model="isCollapse" style="margin-bottom: 10px;">
-      <el-radio-button :label="false">展开</el-radio-button>
-      <el-radio-button :label="true">收起</el-radio-button>
-    </el-radio-group>
-      <el-submenu :index="menu.id.toString()" v-for="menu in menus" :key="menu.id">
-        <template slot="title">
-          <i class="el-icon-location"></i>
-          <span slot="title">{{menu.menuName}}</span>
-        </template>
-        <el-menu-item-group>
-          <template v-for="submenu in menu.submenus">
-            <router-link :to="'/home/'+submenu.path" class="routerStyle" :key="submenu.id">
-            <el-menu-item >{{submenu.title}}</el-menu-item>
-          </router-link>
+      <el-menu class="el-menu-vertical-demo" :collapse="isCollapse">
+        <el-radio-group v-model="isCollapse" style="margin-bottom: 10px;">
+          <el-radio-button :label="false" style="width:65px;">展开</el-radio-button>
+          <el-radio-button :label="true" style="width:65px;">收起</el-radio-button>
+        </el-radio-group>
+        <el-submenu :index="menu.id.toString()" v-for="menu in menus" :key="menu.id">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span slot="title">{{menu.menuName}}</span>
           </template>
-        </el-menu-item-group>
-      </el-submenu>
-    </el-menu>
-    <el-container>
-    <el-header style="text-align: right; font-size: 12px">
-      <h2>租房系统</h2>
-      <el-dropdown trigger="click">
-        <i class="el-icon-setting" style="margin-right: 15px"></i>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="logout">离开系统</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <span style="font-size:16px;">{{userAccountName}}</span>
-    </el-header>
-    
-    <el-main>
-      <router-view></router-view>
-    </el-main>
-  </el-container>
-</el-container>
+          <el-menu-item-group>
+            <template v-for="submenu in menu.submenus">
+              <router-link :to="'/home/'+submenu.path" class="routerStyle" :key="submenu.id">
+                <el-menu-item>{{submenu.title}}</el-menu-item>
+              </router-link>
+            </template>
+          </el-menu-item-group>
+        </el-submenu>
+      </el-menu>
+      <el-container>
+        <el-header style="text-align: right; font-size: 12px">
+          <h2>租房系统</h2>
+          <el-dropdown trigger="click">
+            <i class="el-icon-setting" style="margin-right: 15px"></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native="logout">离开系统</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <span style="font-size:16px;">{{userAccountName}}</span>
+        </el-header>
+
+        <el-main>
+          <router-view></router-view>
+        </el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
@@ -94,6 +94,10 @@ export default {
 }
 </script>
 <style scoped>
+.el-menu--collapse {
+    width: 69px;
+}
+
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
   height: 100%;
