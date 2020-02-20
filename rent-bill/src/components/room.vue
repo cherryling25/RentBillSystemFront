@@ -1,10 +1,10 @@
 <template>
   <div class="room">
     <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="审批人">
+      <el-form-item label="日期">
         <el-input v-model="search" placeholder="输入关键字搜索"/>
       </el-form-item>
-      <el-form-item label="活动区域">
+      <el-form-item label="姓名">
         <el-input v-model="search" placeholder="输入关键字搜索"/>
       </el-form-item>
       <el-form-item>
@@ -13,7 +13,8 @@
     </el-form>
 
     <div style="float: right;">
-      <el-button @click="toggleSelection([tableData[1], tableData[2]])">切换第二、第三行的选中状态</el-button>
+      <el-button @click="addTenant()">增加租客</el-button>
+      <el-button @click="toggleSelection([tableData[1], tableData[2]])">切换第2、第3行的选中状态</el-button>
       <el-button @click="toggleSelection()">取消选择</el-button>
     </div>
 
@@ -44,6 +45,7 @@
 </template>
 
 <script>
+//import Axios from 'axios';
 export default {
   name: 'room',
     data() {
@@ -69,6 +71,43 @@ export default {
       }
     },
   methods:{
+    addTenant(){
+
+      // var obj =
+      //     {date: '2016-09-03',
+      //     name: '虎',
+      //     zip: 200333,
+      //     address: '上海市普陀区金沙江路 1518 弄'};
+      // tableData: [{
+      //     date: '2016-05-03',
+      //     name: '王小虎',
+      //     zip: 200333,
+      //     address: '上海市普陀区金沙江路 1518 弄',
+      //   }]
+      // var url = "document/add";
+      // let requestData = {
+      //   categoryId: this.noteForm.categoryId,
+      //   title: this.noteForm.noteName,
+      //   content: this.noteForm.noteContent
+      // };
+      // Axios.post(url, requestData).then((response) => {
+      //   if (response.data.data) {
+      //     this.$notify({
+      //       message: '创建成功',
+      //       type: 'success'
+      //     });
+      //     this.listCategory();
+      //     this.detail(response.data.data.id);
+      //     this.dialogFormVisible1 = false;
+      //   } else {
+      //     this.$notify.error({
+      //       message: '创建失败'
+      //     });
+      //   }
+      // });
+    },
+
+
     onSubmit(){
       console.log(1);
     },
