@@ -56,11 +56,11 @@
         </el-table-column>
         <el-table-column prop="status" label="状态">
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="120">
+        <el-table-column fixed="right" label="操作" width="220">
           <template slot-scope="scope">
             <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button> -->
-            <el-button type="text" size="small" @click="edit(scope.row)">编辑</el-button>
-            <el-button @click.native.prevent="deleteRow(scope.row)" type="text" size="small">
+            <el-button size="small" @click="edit(scope.row)">编辑</el-button>
+            <el-button @click.native.prevent="deleteRow(scope.row)" type="danger" size="small">
               移除
             </el-button>
           </template>
@@ -99,8 +99,8 @@ export default {
       roomList: [],
       page: {
         currentPage: 1,
-        pageSizes: [10, 20, 30, 40],
-        pageSize: 10,
+        pageSizes: [8,10, 20, 30, 40],
+        pageSize: 8,
         total: 0
       },
 
@@ -113,12 +113,16 @@ export default {
   },
   methods: {
     listRoom() {
-      var url = "room/listAll";
-      //let requestData = {};
-      Axios.post(url).then((response) => {
+      var url = "room/listPage";
+      let requestData = {
+        pageSize:this.page.pageSize,
+        currentPage : this.page.currentPage
+      };
+      Axios.post(url,requestData).then((response) => {
         let serverResponse = response.data;
         if (serverResponse && serverResponse.data != null) {
           this.roomList = serverResponse.data;
+          this.page.total = serverResponse.total;
         }
       });
     },
@@ -183,10 +187,12 @@ export default {
       });
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.listRoom();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.listRoom();
     },
     onSubmit() {
       console.log(1);

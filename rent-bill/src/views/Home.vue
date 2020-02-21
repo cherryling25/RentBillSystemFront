@@ -49,11 +49,11 @@ export default {
       userAccountName:'Ling',
       menus: [{
         id:1,
-        menuName: 'demo1',
+        menuName: '房间',
         submenus: [
           {
             id : 1,
-            title: 'demo111',
+            title: 'room',
             path: 'room'
           },
           {
