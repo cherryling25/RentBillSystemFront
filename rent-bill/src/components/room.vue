@@ -1,138 +1,207 @@
 <template>
   <div class="room">
     <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="日期">
-        <el-input v-model="search" placeholder="输入关键字搜索"/>
+      <el-form-item label="房号">
+        <el-input v-model="search" placeholder="输入关键字搜索" />
       </el-form-item>
-      <el-form-item label="姓名">
-        <el-input v-model="search" placeholder="输入关键字搜索"/>
+      <el-form-item label="状态">
+        <el-input v-model="search" placeholder="输入关键字搜索" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
 
-    <div style="float: right;">
-      <el-button @click="addTenant()">增加租客</el-button>
-      <el-button @click="toggleSelection([tableData[1], tableData[2]])">切换第2、第3行的选中状态</el-button>
-      <el-button @click="toggleSelection()">取消选择</el-button>
+    <div style="float: right; margin-right:20px;">
+      <el-button @click="addDialog = true">增加房间</el-button>
     </div>
 
+    <!-- 弹出框 -->
+    <el-dialog title="增加房间" :visible.sync="addDialog" top="10vh" :modal-append-to-body='false' width="30%">
+      <el-form :model="addRoomForm">
+        <el-form-item label="房号" :label-width="formLabelWidth">
+          <el-input v-model="addRoomForm.roomNumber" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" :label-width="formLabelWidth">
+          <el-input v-model="addRoomForm.status" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDialog = false">取 消</el-button>
+        <el-button type="primary" @click="addRoom()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="编辑房间" :visible.sync="editDialog" top="10vh" :modal-append-to-body='false' width="30%">
+      <el-form :model="editRoomForm">
+        <el-form-item label="房号" :label-width="formLabelWidth">
+          <el-input v-model="editRoomForm.roomNumber" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" :label-width="formLabelWidth">
+          <el-input v-model="editRoomForm.status" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editDialog = false">取 消</el-button>
+        <el-button type="primary" @click="confirmEditRoom()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- main -->
     <el-container>
-      <el-table :data="tableData" height="650" ref="multipleTable" @selection-change="handleSelectionChange">
+      <el-table :data="roomList" height="500" ref="multipleTable" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55">
         </el-table-column>
-        <el-table-column prop="date" label="日期" width="140">
+        <el-table-column prop="roomNumber" label="房号">
         </el-table-column>
-        <el-table-column prop="name" label="姓名" width="120">
-        </el-table-column>
-        <el-table-column prop="zip" label="邮件" width="120">
-        </el-table-column>
-        <el-table-column prop="address" label="地址">
+        <el-table-column prop="status" label="状态">
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            <el-button type="text" size="small">编辑</el-button>
-            <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
+            <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button> -->
+            <el-button type="text" size="small" @click="edit(scope.row)">编辑</el-button>
+            <el-button @click.native.prevent="deleteRow(scope.row)" type="text" size="small">
               移除
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-container>
+
+    <!-- 分页 -->
+    <div class="block" style="float:right; margin-top:10px;">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        :current-page="page.currentPage" :page-sizes="page.pageSizes" :page-size="page.pageSize"
+        layout="total, sizes, prev, pager, next, jumper" :total="page.total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
 <script>
-//import Axios from 'axios';
+import Axios from 'axios';
 export default {
   name: 'room',
-    data() {
-      return {
-        search:'',
-        multipleSelection: [],
-        tableData: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          zip: 200333,
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          date: '2016-05-01',
-          name: 'ling',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-07',
-          name: 'jack',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }]
-      }
+  data() {
+    return {
+      addDialog: false,
+      editDialog: false,
+      formLabelWidth: '60px',
+      addRoomForm: {
+        roomNumber: '',
+        status: ''
+      },
+      editRoomForm: {
+        id: '',
+        roomNumber: '',
+        status: ''
+      },
+      roomList: [],
+      page: {
+        currentPage: 1,
+        pageSizes: [10, 20, 30, 40],
+        pageSize: 10,
+        total: 0
+      },
+
+      search: '',
+      multipleSelection: [],
+    }
+  },
+  mounted: function () {
+    this.listRoom();
+  },
+  methods: {
+    listRoom() {
+      var url = "room/listAll";
+      //let requestData = {};
+      Axios.post(url).then((response) => {
+        let serverResponse = response.data;
+        if (serverResponse && serverResponse.data != null) {
+          this.roomList = serverResponse.data;
+        }
+      });
     },
-  methods:{
-    addTenant(){
-
-      // var obj =
-      //     {date: '2016-09-03',
-      //     name: '虎',
-      //     zip: 200333,
-      //     address: '上海市普陀区金沙江路 1518 弄'};
-      // tableData: [{
-      //     date: '2016-05-03',
-      //     name: '王小虎',
-      //     zip: 200333,
-      //     address: '上海市普陀区金沙江路 1518 弄',
-      //   }]
-      // var url = "document/add";
-      // let requestData = {
-      //   categoryId: this.noteForm.categoryId,
-      //   title: this.noteForm.noteName,
-      //   content: this.noteForm.noteContent
-      // };
-      // Axios.post(url, requestData).then((response) => {
-      //   if (response.data.data) {
-      //     this.$notify({
-      //       message: '创建成功',
-      //       type: 'success'
-      //     });
-      //     this.listCategory();
-      //     this.detail(response.data.data.id);
-      //     this.dialogFormVisible1 = false;
-      //   } else {
-      //     this.$notify.error({
-      //       message: '创建失败'
-      //     });
-      //   }
-      // });
+    addRoom() {
+      var url = "room/create";
+      let requestData = {
+        roomNumber: this.addRoomForm.roomNumber,
+        status: this.addRoomForm.status
+      };
+      Axios.post(url, requestData).then((response) => {
+        if (response.data.data) {
+          this.$notify({
+            message: '创建成功',
+            type: 'success'
+          });
+          this.listRoom();
+          this.addDialog = false;
+        } else {
+          this.$notify.error({
+            message: '创建失败'
+          });
+        }
+      });
     },
 
-
-    onSubmit(){
+    deleteRow(row) {
+      var url = "room/delete";
+      let requestData = {
+        id: row.id
+      };
+      this.$confirm('确认删除吗?', '提示', {}).then(() => {
+        Axios.post(url, requestData).then((response) => {
+          if (response && response.data && response.data.data) {
+            this.listRoom();
+            this.$notify({
+              message: '删除成功',
+              type: 'success'
+            });
+          }
+        });
+      });
+    },
+    edit(row) {
+      this.editRoomForm = row;
+      this.editDialog = true;
+    },
+    confirmEditRoom() {
+      var url = "room/update";
+      Axios.post(url, this.editRoomForm).then((response) => {
+        if (response.data.data) {
+          this.$notify({
+            message: '修改成功',
+            type: 'success'
+          });
+          this.listRoom();
+          this.editDialog = false;
+        } else {
+          this.$notify.error({
+            message: '修改失败'
+          });
+        }
+      });
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+    },
+    onSubmit() {
       console.log(1);
     },
-    handleClick(row) {
-      console.log(row);
-    },
-    deleteRow(index, rows) {
-      rows.splice(index, 1);
-    },
-    toggleSelection(rows) {
-      
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
+    // handleClick(row) {
+    //   console.log(row);
+    // },
+
     handleSelectionChange(val) {
       this.multipleSelection = val;
     }
   }
 }
 </script>
+
 <style scoped>
 .el-form{
   display: inline;
