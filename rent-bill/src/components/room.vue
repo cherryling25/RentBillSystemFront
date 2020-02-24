@@ -13,43 +13,43 @@
     </el-form>
 
     <div style="float: right; margin-right:20px;">
-      <el-button @click="addDialog = true">增加房间</el-button>
+      <el-button @click="addDialog = true">增加</el-button>
     </div>
 
     <!-- 弹出框 -->
     <el-dialog title="增加房间" :visible.sync="addDialog" top="10vh" :modal-append-to-body='false' width="30%">
-      <el-form :model="addRoomForm">
-        <el-form-item label="房号" :label-width="formLabelWidth">
-          <el-input v-model="addRoomForm.roomNumber" autocomplete="off"></el-input>
+      <el-form :model="addForm">
+        <el-form-item label="房号">
+          <el-input v-model="addForm.roomNumber" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="状态" :label-width="formLabelWidth">
-          <el-input v-model="addRoomForm.status" autocomplete="off"></el-input>
+        <el-form-item label="状态">
+          <el-input v-model="addForm.status" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addRoom()">确 定</el-button>
+        <el-button type="primary" @click="add()">确 定</el-button>
       </div>
     </el-dialog>
 
     <el-dialog title="编辑房间" :visible.sync="editDialog" top="10vh" :modal-append-to-body='false' width="30%">
-      <el-form :model="editRoomForm">
-        <el-form-item label="房号" :label-width="formLabelWidth">
-          <el-input v-model="editRoomForm.roomNumber" autocomplete="off"></el-input>
+      <el-form :model="editForm">
+        <el-form-item label="房号">
+          <el-input v-model="editForm.roomNumber" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="状态" :label-width="formLabelWidth">
-          <el-input v-model="editRoomForm.status" autocomplete="off"></el-input>
+        <el-form-item label="状态">
+          <el-input v-model="editForm.status" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="editDialog = false">取 消</el-button>
-        <el-button type="primary" @click="confirmEditRoom()">确 定</el-button>
+        <el-button type="primary" @click="confirmEdit()">确 定</el-button>
       </div>
     </el-dialog>
 
     <!-- main -->
     <el-container>
-      <el-table :data="roomList" height="500" ref="multipleTable" @selection-change="handleSelectionChange">
+      <el-table :data="tableData" height="500" ref="multipleTable" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55">
         </el-table-column>
         <el-table-column prop="roomNumber" label="房号">
@@ -86,34 +86,33 @@ export default {
     return {
       addDialog: false,
       editDialog: false,
-      formLabelWidth: '60px',
-      addRoomForm: {
+      addForm: {
         roomNumber: '',
         status: ''
       },
-      editRoomForm: {
+      editForm: {
         id: '',
         roomNumber: '',
         status: ''
       },
-      roomList: [],
+      tableData: [],
       page: {
         currentPage: 1,
         pageSizes: [8,10, 20, 30, 40],
         pageSize: 8,
         total: 0
       },
-
+      pageUrl:'room/',
       search: '',
       multipleSelection: [],
     }
   },
   mounted: function () {
-    this.listRoom();
+    this.loadTableData();
   },
   methods: {
-    listRoom() {
-      var url = "room/listPage";
+    loadTableData() {
+      var url = this.pageUrl+"listPage";
       let requestData = {
         pageSize:this.page.pageSize,
         currentPage : this.page.currentPage
@@ -121,16 +120,16 @@ export default {
       Axios.post(url,requestData).then((response) => {
         let serverResponse = response.data;
         if (serverResponse && serverResponse.data != null) {
-          this.roomList = serverResponse.data;
+          this.tableData = serverResponse.data;
           this.page.total = serverResponse.total;
         }
       });
     },
-    addRoom() {
-      var url = "room/create";
+    add() {
+      var url = this.pageUrl+"create";
       let requestData = {
-        roomNumber: this.addRoomForm.roomNumber,
-        status: this.addRoomForm.status
+        roomNumber: this.addForm.roomNumber,
+        status: this.addForm.status
       };
       Axios.post(url, requestData).then((response) => {
         if (response.data.data) {
@@ -138,7 +137,7 @@ export default {
             message: '创建成功',
             type: 'success'
           });
-          this.listRoom();
+          this.loadTableData();
           this.addDialog = false;
         } else {
           this.$notify.error({
@@ -149,14 +148,14 @@ export default {
     },
 
     deleteRow(row) {
-      var url = "room/delete";
+      var url = this.pageUrl+"delete";
       let requestData = {
         id: row.id
       };
       this.$confirm('确认删除吗?', '提示', {}).then(() => {
         Axios.post(url, requestData).then((response) => {
           if (response && response.data && response.data.data) {
-            this.listRoom();
+            this.loadTableData();
             this.$notify({
               message: '删除成功',
               type: 'success'
@@ -166,18 +165,18 @@ export default {
       });
     },
     edit(row) {
-      this.editRoomForm = row;
+      this.editForm = row;
       this.editDialog = true;
     },
-    confirmEditRoom() {
-      var url = "room/update";
-      Axios.post(url, this.editRoomForm).then((response) => {
+    confirmEdit() {
+      var url = this.pageUrl+"update";
+      Axios.post(url, this.editForm).then((response) => {
         if (response.data.data) {
           this.$notify({
             message: '修改成功',
             type: 'success'
           });
-          this.listRoom();
+          this.loadTableData();
           this.editDialog = false;
         } else {
           this.$notify.error({
@@ -188,11 +187,11 @@ export default {
     },
     handleSizeChange(val) {
       this.page.pageSize = val;
-      this.listRoom();
+      this.loadTableData();
     },
     handleCurrentChange(val) {
       this.page.currentPage = val;
-      this.listRoom();
+      this.loadTableData();
     },
     onSubmit() {
       console.log(1);
@@ -211,5 +210,11 @@ export default {
 <style scoped>
 .el-form{
   display: inline;
+}
+.el-dialog .el-form-item{
+  margin-left: 20px;
+}
+.el-dialog .el-input{ 
+  width: 330px;
 }
 </style>

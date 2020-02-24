@@ -58,7 +58,7 @@ export default {
           },
           {
             id : 2,
-            title: 'demo222',
+            title: '房屋',
             path: 'building'
           },
         ]
