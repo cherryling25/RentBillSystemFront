@@ -13,37 +13,22 @@
     </el-form>
 
     <div style="float: right; margin-right:20px;">
-      <el-button @click="addDialog = true">增加</el-button>
+      <el-button @click="openFormDialog()">新增</el-button>
     </div>
 
     <!-- 弹出框 -->
-    <el-dialog title="增加房间" :visible.sync="addDialog" top="10vh" :modal-append-to-body='false' width="30%">
-      <el-form :model="addForm">
+    <el-dialog :title="formTitle" :visible.sync="formDialog" top="10vh" :modal-append-to-body='false' width="30%">
+      <el-form :model="formModel">
         <el-form-item label="房号">
-          <el-input v-model="addForm.roomNumber" autocomplete="off"></el-input>
+          <el-input v-model="formModel.roomNumber" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-input v-model="addForm.status" autocomplete="off"></el-input>
+          <el-input v-model="formModel.status" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="addDialog = false">取 消</el-button>
-        <el-button type="primary" @click="add()">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="编辑房间" :visible.sync="editDialog" top="10vh" :modal-append-to-body='false' width="30%">
-      <el-form :model="editForm">
-        <el-form-item label="房号">
-          <el-input v-model="editForm.roomNumber" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-input v-model="editForm.status" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="editDialog = false">取 消</el-button>
-        <el-button type="primary" @click="confirmEdit()">确 定</el-button>
+        <el-button @click="formDialog = false">取 消</el-button>
+        <el-button type="primary" @click="save()">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -59,7 +44,7 @@
         <el-table-column fixed="right" label="操作" width="220">
           <template slot-scope="scope">
             <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button> -->
-            <el-button size="small" @click="edit(scope.row)">编辑</el-button>
+            <el-button size="small" @click="openFormDialog(scope.row)">编辑</el-button>
             <el-button @click.native.prevent="deleteRow(scope.row)" type="danger" size="small">
               移除
             </el-button>
@@ -84,17 +69,9 @@ export default {
   name: 'room',
   data() {
     return {
-      addDialog: false,
-      editDialog: false,
-      addForm: {
-        roomNumber: '',
-        status: ''
-      },
-      editForm: {
-        id: '',
-        roomNumber: '',
-        status: ''
-      },
+      formDialog: false,
+      formTitle:'',
+      formModel: {},
       tableData: [],
       page: {
         currentPage: 1,
@@ -125,28 +102,40 @@ export default {
         }
       });
     },
-    add() {
-      var url = this.pageUrl+"create";
+    openFormDialog(model) {
+      this.formDialog = true;
+      this.formTitle = model ? '修改' : '新增';
+      if(model) {
+        this.formModel = model;
+      } else {
+        this.formModel =  {
+          roomNumber:  null,
+          status: null
+        }
+      }
+    },
+    save() {
       let requestData = {
-        roomNumber: this.addForm.roomNumber,
-        status: this.addForm.status
+        id: this.formModel.id,
+        roomNumber: this.formModel.roomNumber,
+        status: this.formModel.status
       };
+      var url = this.pageUrl+ 'save';
       Axios.post(url, requestData).then((response) => {
         if (response.data.data) {
           this.$notify({
-            message: '创建成功',
+            message: requestData.id ? '修改成功' : '创建成功',
             type: 'success'
           });
           this.loadTableData();
-          this.addDialog = false;
+          this.formDialog = false;
         } else {
           this.$notify.error({
-            message: '创建失败'
+            message: requestData.id ? '修改失败' : '创建失败'
           });
         }
       });
     },
-
     deleteRow(row) {
       var url = this.pageUrl+"delete";
       let requestData = {
@@ -162,27 +151,6 @@ export default {
             });
           }
         });
-      });
-    },
-    edit(row) {
-      this.editForm = row;
-      this.editDialog = true;
-    },
-    confirmEdit() {
-      var url = this.pageUrl+"update";
-      Axios.post(url, this.editForm).then((response) => {
-        if (response.data.data) {
-          this.$notify({
-            message: '修改成功',
-            type: 'success'
-          });
-          this.loadTableData();
-          this.editDialog = false;
-        } else {
-          this.$notify.error({
-            message: '修改失败'
-          });
-        }
       });
     },
     handleSizeChange(val) {
