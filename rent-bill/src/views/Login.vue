@@ -24,14 +24,16 @@
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button style="width: 100%" :loading="loading" @click="dialogFormVisible = true">
+          <el-button style="width: 100%" :loading="loading" @click="registerDialog = true">
             注册
           </el-button>
         </el-form-item>
       </el-form>
     </el-card>
+    <div>
 
-    <el-dialog title="注册" :visible.sync="dialogFormVisible" width="30%">
+    
+    <el-dialog title="注册" :visible.sync="registerDialog" width="30%" :modal-append-to-body="false">
       <el-form :model="registerForm">
         <el-form-item label="用户名" :label-width="formLabelWidth">
           <el-input v-model="registerForm.userName" autocomplete="off"></el-input>
@@ -44,10 +46,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="registerDialog = false">取 消</el-button>
         <el-button type="primary" @click="register">确 定</el-button>
       </div>
     </el-dialog>
+    </div>
   </div>
 </template>
 <script>
@@ -56,7 +59,7 @@ export default {
   name: "login",
     data() {
       return {
-        dialogFormVisible: false,
+        registerDialog: false,
         registerForm: {
           userName: '',
           password: '',
@@ -99,7 +102,7 @@ export default {
             message: '注册成功',
             type: 'success'
           });
-          this.dialogFormVisible = false;
+          this.registerDialog = false;
         } else {
           this.$notify.error({
             message: '注册失败'
