@@ -75,7 +75,6 @@ export default {
     },
   methods: {
     register() {
-      console.log(this.registerForm.userName);
       if(!this.registerForm.userName){
         this.$notify.error({
           message: '用户名不能为空'
@@ -95,7 +94,6 @@ export default {
         confirmPwd: this.registerForm.confirmPwd
       };
       
-      console.log(requestData);
       Axios.post(url, requestData).then((response) => {
         if (response.data.data) {
           this.$notify({
